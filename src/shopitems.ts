@@ -1,4 +1,7 @@
+import {config} from "./configuration";
+
 export const shopitems = [
+    // name base hot cold cost flags
     ['Balloon', 14, 14, 14, 9, 3],
     ['Toy', 30, 30, 30, 25, 1],
     ['Map', 7, 7, 8, 6, 1],
@@ -55,7 +58,6 @@ export const shopitems = [
     ['EmptyBowlBlue', 0, 0, 0, 0, 32],
 ]
 
-
 export const SHOP_ITEM_FLAG_IS_SOUVENIR     = 0b00000001
 export const SHOP_ITEM_FLAG_IS_RECOLOURABLE = 0b00000010
 export const SHOP_ITEM_FLAG_IS_PHOTO        = 0b00000100
@@ -63,16 +65,16 @@ export const SHOP_ITEM_FLAG_IS_DRINK        = 0b00001000
 export const SHOP_ITEM_FLAG_IS_FOOD        = 0b00010000
 export const SHOP_ITEM_FLAG_IS_CONTAINER   = 0b00100000
 
-export function getOptimalPricePoint(flag: number, happiness_ratio: number[], target?: number): number {
+export function getOptimalPricePoint(flag: number, happiness_ratio: number[]): number {
     let tries = 0
     if (flag & (SHOP_ITEM_FLAG_IS_FOOD | SHOP_ITEM_FLAG_IS_DRINK)) {
-        tries = 2
+        tries = config.getTries('food')
     } else if (flag & (SHOP_ITEM_FLAG_IS_PHOTO)) {
-        tries = 5
+        tries = config.getTries('photo')
     } else if (flag & (SHOP_ITEM_FLAG_IS_SOUVENIR)) {
-        tries = 3
+        tries = config.getTries('souvenir')
     }
-    if (target == undefined) target = 0.90
+    let target = config.getFloat('target')
 
     let buy_probability_target = 1 - (1 - target) ** (1/tries)
     let price_diff = -1
@@ -81,6 +83,8 @@ export function getOptimalPricePoint(flag: number, happiness_ratio: number[], ta
         price_diff += 1
         buy_chance = 0;
         [0, 1, 2].forEach(value => buy_chance += (1 - (price_diff >> value) / 8) * happiness_ratio[value])
-    } while (buy_chance > buy_probability_target - 0.025)
-    return price_diff - 1
+        // console.log(buy_chance, price_diff)
+    } while (buy_chance >= buy_probability_target - 0.001)
+
+    return price_diff == 0 ? 0 : price_diff - 1
 }

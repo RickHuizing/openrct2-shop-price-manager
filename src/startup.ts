@@ -8,11 +8,13 @@ import {
 } from './shopitems'
 import {getGuestHappiness} from "./util";
 import {buildWindow} from "./Window";
+import {init_config} from "./configuration"
+import {state} from "./state";
+
 
 const doLog = false
 
-
-function updateShopPrices() {
+export function updateShopPrices() {
     let guestHappiness = getGuestHappiness()
     if (doLog) console.log(guestHappiness)
 
@@ -36,7 +38,7 @@ function updateShopPrices() {
         let oldPrice = ride.price[isPrimaryPrice ? 0 : 1]
         let newPrice = currentValue + newPricePoint
         if (oldPrice != newPrice) {
-            console.log('updating price for ' + ride.name + ' from ' + oldPrice + ' to ' + newPrice)
+            if (doLog) console.log('updating price for ' + ride.name + ' from ' + oldPrice + ' to ' + newPrice)
 
             let result: GameActionResult | undefined = undefined
             context.executeAction(
@@ -52,10 +54,11 @@ function updateShopPrices() {
                 }
             }
         }
+        return newPrice
     }
 
     let rides = map.rides
-
+    let items: { [id: number]: number } = {}
     rides.forEach((ride) => {
         if ((ride.classification == 'stall') || ride.object.name == 'Information Kiosk') {
             let rideObject = ride.object
@@ -67,7 +70,7 @@ function updateShopPrices() {
                 let currentValue = shopitem[tempIndex]
                 let currentPrice = ride.price[0]
                 log_shopitem(ride, shopitem, currentValue, currentPrice);
-                updateRidePrice(ride, shopitem, currentValue as number, true)
+                items[itemPrimary] = updateRidePrice(ride, shopitem, currentValue as number, true)
             }
 
             if (itemSecondary != 255) {
@@ -75,8 +78,7 @@ function updateShopPrices() {
                 let currentValue = shopitem[tempIndex]
                 let currentPrice = ride.price[1]
                 log_shopitem(ride, shopitem, currentValue, currentPrice);
-                updateRidePrice(ride, shopitem, currentValue as number, false)
-
+                items[itemSecondary] = updateRidePrice(ride, shopitem, currentValue as number, false)
             }
         }
 
@@ -84,11 +86,12 @@ function updateShopPrices() {
             let shopitem = shopitems[3]
             let currentValue = shopitem[tempIndex]
             let currentPrice = ride.price[1]
+
             log_shopitem(ride, shopitem, currentValue, currentPrice)
-            updateRidePrice(ride, shopitem, currentValue as number, false)
+            items[3] = updateRidePrice(ride, shopitem, currentValue as number, false)
         }
     })
-
+    state.items = items
     if (doLog) console.log()
 }
 
@@ -115,10 +118,16 @@ function onClickMenuItem() {
 }
 
 export function startup() {
+    init_config()
+
     // Register a menu item under the map icon:
     if (typeof ui !== "undefined") {
         ui.registerMenuItem("Shop Price Manager", () => onClickMenuItem());
     }
 
-    context.subscribe('interval.day', () => updateShopPrices())
+    context.subscribe('interval.day', () => {
+        if (context.mode == "normal") updateShopPrices()
+    })
+    if (context.mode == "normal")
+        updateShopPrices()
 }
