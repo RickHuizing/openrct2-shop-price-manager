@@ -4,6 +4,8 @@ Tired of trying to find the perfect price for all your goodies? Tired of not kno
 
 No more! Double your profits with this one simple trick. Just install the plugin and let it manage your shops for you!
 
+And remember: happy guests pay more!
+
 Built using [basssiiie](https://github.com/Basssiiie/OpenRCT2-Simple-Typescript-Template)'s plugin template
 
 ---
