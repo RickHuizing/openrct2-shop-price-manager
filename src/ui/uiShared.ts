@@ -1,6 +1,21 @@
-export let uiShared = {
+interface UiConstants {
+    ticksSinceLastUpdate: number,
+    ticksPerUpdate: number,
+
+    windowHeaderHeight: number,
+    tabIconHeight: number,
+    padding: number,
+    getTopY(): number,
+
+    tabsAsColumns: true,
+
+    updateOnNextTick(): void,
+
+    currentShopItemPriceVersion: number
+}
+export let uiShared: UiConstants = {
     ticksSinceLastUpdate: 0,
-    ticksPerUpdate: 0,
+    ticksPerUpdate: 40,
 
     windowHeaderHeight: 15,
     tabIconHeight: 28,
