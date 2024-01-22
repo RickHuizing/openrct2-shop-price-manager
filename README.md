@@ -16,8 +16,10 @@ Add `shop-price-manager.js` to your plugin folder for OpenRCT2.
 Plugin folder found at `~/Documents/OpenRCT2/plugin.`
 
 ---
+<img src="https://github.com/RickHuizing/openrct2-shop-price-manager/blob/cd862da22e92b350df2d0cb0a9ca4c496ad60f19/images/tabs-as-columns.png" alt="column view" width="810px"/>
 
-![image](https://github.com/RickHuizing/openrct2-shop-price-manager/assets/15342604/6e4bb891-7496-496c-9279-5ef080c1d35f)
+<img src="https://github.com/RickHuizing/openrct2-shop-price-manager/blob/cd862da22e92b350df2d0cb0a9ca4c496ad60f19/images/config-tab.png" alt="tab view 1" width="270px"/><img src="https://github.com/RickHuizing/openrct2-shop-price-manager/blob/cd862da22e92b350df2d0cb0a9ca4c496ad60f19/images/stat-tab.png" alt="tab view 2" width="270px"/><img src="https://github.com/RickHuizing/openrct2-shop-price-manager/blob/cd862da22e92b350df2d0cb0a9ca4c496ad60f19/images/item-tab.png" alt="tab view 3" width="270px"/>
+
 
 ---
 
