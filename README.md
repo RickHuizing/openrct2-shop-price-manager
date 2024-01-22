@@ -1,15 +1,27 @@
-# (Simple) OpenRCT2 plugin for shop price management (BETA)
+# OpenRCT2 shop price management
 
-<b>This is a BETA version, very rudimentary and based on my own preferences. If you would like to see specific features (or work on them) any input is appreciated</b>
+Tired of trying to find the perfect price for all your goodies? Tired of not knowing if your prices are actually working?
 
-A simple and minimal shop price management.
-Just add the plugin to your plugin folder and it should work.
-Plugin folder found at ~/Documents/OpenRCT2/plugin.
+No more! Double your profits with this one simple trick. Just install the plugin and let it manage your shops for you!
+
+Built using [basssiiie](https://github.com/Basssiiie/OpenRCT2-Simple-Typescript-Template)'s plugin template
+
+---
+### Instalation
+
+Add `shop-price-manager.js` to your plugin folder for OpenRCT2.
+
+Plugin folder found at `~/Documents/OpenRCT2/plugin.`
 
 ---
 
-## How does it work?
-Based on some calculations, sets the price of shop items so that 90% of your guests should buy them.
+
+
+---
+
+### How does it work?
+
+Calculates optimal prices so that 90%(configurable) of guests will buy your items after a certain amount of tries.
 
 To increase prices as much as possible, food items have a 90% buy chance with 2 tries, souvenirs with 3 tries and on-ride photo's with 5 tries.
 
@@ -32,18 +44,12 @@ Roughly speaking, guests with a happiness >=180 have a 4x higher chance of buyin
 There is a reddit post out there explaining all this, I'll link to it in the future.
 
 ---
-### GUI
-For now, GUI only shows some debug stats. When I have more time and if there's interest I'll add some configurations.
 
-Due to some limitations of the OpenRCT2 API, the stats for guests that bought t-shirts are based on guests wearing white tshirts:)
-
----
-
-## Todo (from initial commit):
+## Todo:
+- make GUI configurable, add button to toggle tabs for each item
 - add some configs to the gui
     - enable/disable price management (per category)
     - target percentage per category
-    - tries per category
     - manual override per category (add/subtract constant to optimal price)
     - disable umbrella / map price management for optimization / cheese
         - maps increase traversed junctions during pathfinding
@@ -51,8 +57,3 @@ Due to some limitations of the OpenRCT2 API, the stats for guests that bought t-
     - balloons ?
         - balloons can be dropped so can be sold multiple times
         - other items are dropped as well I think but unsure
-- make these configs savable
-- show expected percentages based on current prices
-    - price is incremented by 0.1 so no exact calculation can be made
-- show list of sellable items / items sold in park with current prices
-    - kinda cool to see in big parks with lots of updates

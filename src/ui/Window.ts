@@ -132,12 +132,12 @@ function updateUI() {
         widget.items = buildHappinessWidgetRows()
         y += widget.height + uiShared.padding
 
-        widget = window.findWidget('bought')
-        widget.items = buildBoughtWidgetRows82()
-        y += widget.height + uiShared.padding
-
         widget = window.findWidget('price')
         widget.items = buildPriceWidgetRows()
+        y += widget.height + uiShared.padding
+
+        widget = window.findWidget('bought')
+        widget.items = buildBoughtWidgetRows82()
         y += widget.height + uiShared.padding
 
         if (!uiShared.tabsAsColumns) window.height = y + uiShared.padding

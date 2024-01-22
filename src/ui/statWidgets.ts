@@ -83,6 +83,9 @@ export function buildHappinessWidgetRows() {
 export function buildBoughtWidgetRows82() {
 
     let buys = guestsBought()
+    if (buys == undefined) {
+        return buildBoughtWidgetItems().concat([['to see more items', 'use dev build'], ['of OpenRCT2', 'see openrct2.io']])
+    }
     let no_of_guests = state.guests.length
 
     let souvenirRows: string[][] = []
