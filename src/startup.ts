@@ -7,16 +7,17 @@ import {
     shopitems
 } from './shopitems'
 import {getGuestHappiness} from "./util";
-import {buildWindow} from "./Window";
+import {buildWindow} from "./ui/Window";
 import {init_config} from "./configuration"
-import {state} from "./state";
+import {DEBUG, state} from "./state";
 
 
-const doLog = false
+// force update on startup to initialize state.items.
+let forceUpdatePrices = true
 
 export function updateShopPrices() {
     let guestHappiness = getGuestHappiness()
-    if (doLog) console.log(guestHappiness)
+    if (DEBUG) console.log(guestHappiness)
 
     let foodPriceIncrease = getOptimalPricePoint(SHOP_ITEM_FLAG_IS_FOOD, guestHappiness)
     let photoPriceIncrease = getOptimalPricePoint(SHOP_ITEM_FLAG_IS_PHOTO, guestHappiness)
@@ -24,6 +25,8 @@ export function updateShopPrices() {
 
     let temp = climate.current.temperature
     let tempIndex = temp >= 21 ? 2 : temp <= 11 ? 3 : 1
+
+    let pricesUpdated = false
 
     function updateRidePrice(ride: Ride, shopitem: (string | number)[], currentValue: number, isPrimaryPrice: boolean) {
         let newPricePoint = 0
@@ -38,7 +41,8 @@ export function updateShopPrices() {
         let oldPrice = ride.price[isPrimaryPrice ? 0 : 1]
         let newPrice = currentValue + newPricePoint
         if (oldPrice != newPrice) {
-            if (doLog) console.log('updating price for ' + ride.name + ' from ' + oldPrice + ' to ' + newPrice)
+            if (DEBUG) console.log('updating price for ' + ride.name + ' from ' + oldPrice + ' to ' + newPrice)
+            pricesUpdated = true
 
             let result: GameActionResult | undefined = undefined
             context.executeAction(
@@ -83,7 +87,7 @@ export function updateShopPrices() {
         }
 
         if (ride.classification == 'ride' && ride.price.length == 2) {
-            let shopitem = shopitems[3]
+            let shopitem = shopitems[3] // photo
             let currentValue = shopitem[tempIndex]
             let currentPrice = ride.price[1]
 
@@ -91,12 +95,16 @@ export function updateShopPrices() {
             items[3] = updateRidePrice(ride, shopitem, currentValue as number, false)
         }
     })
-    state.items = items
-    if (doLog) console.log()
+    if (pricesUpdated || forceUpdatePrices) {
+        forceUpdatePrices = false
+        state.shopItemPrices = items
+        state.shopItemPriceVersion++
+    }
+    if (DEBUG) console.log()
 }
 
 function log_shopitem(ride: Ride, shopitem: (string | number)[], currentValue: string | number, currentPrice: number) {
-    if (!doLog) return
+    if (!DEBUG) return
 
     console.log(ride.id + ': ' + shopitem[0] + ' current value: ' + currentValue + ' current price: ' + currentPrice)
     if ((shopitem[5] as number) & (SHOP_ITEM_FLAG_IS_FOOD | SHOP_ITEM_FLAG_IS_DRINK)) {
@@ -112,9 +120,7 @@ function onClickMenuItem() {
     if (typeof ui === "undefined") {
         return
     }
-
     buildWindow();
-
 }
 
 export function startup() {
@@ -122,12 +128,13 @@ export function startup() {
 
     // Register a menu item under the map icon:
     if (typeof ui !== "undefined") {
-        ui.registerMenuItem("Shop Price Manager", () => onClickMenuItem());
+        ui.registerMenuItem('Shop Price Manager', () => onClickMenuItem());
     }
 
     context.subscribe('interval.day', () => {
-        if (context.mode == "normal") updateShopPrices()
+        if (context.mode == 'normal') updateShopPrices()
     })
-    if (context.mode == "normal")
+
+    if (context.mode == 'normal')
         updateShopPrices()
 }

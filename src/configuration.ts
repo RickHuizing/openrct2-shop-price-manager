@@ -1,4 +1,5 @@
 import {updateShopPrices} from "./startup";
+import {DEBUG} from "./state";
 
 const rctStorage = context.getParkStorage()
 
@@ -54,15 +55,17 @@ export const config: ShopManagerConfig = {
 
     init(): void {
         let defaultFloats = [['target', 0.9]]
-        defaultFloats.forEach(float=> {
+        defaultFloats.forEach(float => {
             if (!rctStorage.has(float[0] as string)) this.setFloat(float[0] as string, float[1])
         })
-        let defaultTries = [['food', 2],['souvenir', 4],['photo', 5]]
-        defaultTries.forEach(int=> {
+        let defaultTries = [['food', 2], ['souvenir', 4], ['photo', 5]]
+        defaultTries.forEach(int => {
             if (!rctStorage.has(int[0] as string)) this.setTries(int[0] as string, int[1])
         })
-        for (let allKey in rctStorage.getAll()) {
-            console.log(allKey, rctStorage.getAll()[allKey])
+        if (DEBUG) {
+            for (let allKey in rctStorage.getAll()) {
+                console.log(allKey, rctStorage.getAll()[allKey])
+            }
         }
     },
     getFloat(key: string): number {

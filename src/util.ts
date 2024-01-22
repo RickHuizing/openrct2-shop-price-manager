@@ -1,5 +1,7 @@
+import {state} from "./state";
+
 export function getGuestHappiness() {
-    let guests = map.getAllEntities("guest")
+    let guests = state.guests
     let guestHappiness = [0, 0, 0]
     guests.forEach(guest => {
         if (guest.happiness >= 180) {
@@ -14,4 +16,19 @@ export function getGuestHappiness() {
         guestHappiness[i] = guestHappiness[i] / guests.length
     }
     return guestHappiness
+}
+
+export function guestsBought(): { [itemName: string]: number } {
+    let guests = state.guests
+    let boughtItems: { [itemName: string]: number } = {}
+
+    guests.forEach(guest => guest.items.forEach((item) => {
+        if (boughtItems[item.type] == undefined) {
+            boughtItems[item.type] = 1
+        } else {
+            boughtItems[item.type] += 1
+        }
+    }))
+
+    return boughtItems
 }

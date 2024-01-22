@@ -88,3 +88,47 @@ export function getOptimalPricePoint(flag: number, happiness_ratio: number[]): n
 
     return price_diff == 0 ? 0 : price_diff - 1
 }
+
+let guestItemsToShopItems: { [guestitem: string]: number } = {
+    'tshirt': 20,
+    'photo1': 3
+}
+
+export function guestItemToShopItem(guestItemName: string): (string | number)[] | undefined {
+    let shopItemId = guestItemsToShopItems[guestItemName]
+    if (shopItemId != undefined)
+        return shopitems[shopItemId]
+
+    let shopItemName = guestItemNameToShopItemName(guestItemName)
+
+    let shopItem: (number | string)[] | undefined = undefined
+    shopitems.forEach((shopitem, i) => {
+        if (shopitem[0] == shopItemName) {
+            shopItem = shopitem
+            shopItemId = i
+        }
+    })
+
+    if (shopItem != undefined && shopItemId != undefined) {
+        guestItemsToShopItems[guestItemName] = shopItemId
+    } else {
+        console.log(`SHOP PRICE MANAGER ERROR: unknown guest item ${guestItemName}`)
+    }
+
+    return shopItem
+}
+function guestItemNameToShopItemName(guestItemName:string) {
+    let shopItemName = ''
+    let doCapitalize = true
+    for (let i = 0; i < guestItemName.length; i++) {
+        if (doCapitalize) {
+            shopItemName += guestItemName[i].toUpperCase()
+            doCapitalize = false
+        } else if (guestItemName[i] == '_') {
+            doCapitalize = true
+        } else {
+            shopItemName += guestItemName[i]
+        }
+    }
+    return shopItemName
+}
