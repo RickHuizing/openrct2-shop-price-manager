@@ -1,17 +1,33 @@
 import {config} from "../configuration";
-import {updateShopPrices} from "../startup";
 import {uiShared} from "./uiShared";
+import {updateShopPrices} from "../manageShopPrices";
 
 export function buildConfigWidgets() {
     let spinnerWidth = 100
     let labelWidth = 100
 
     let height = 12
-    let vars = ['target', 'food', 'souvenir', 'photo']
-    let ranges = [[0, 1], [0, 100], [0, 100], [0, 100]]
 
     let y = 0
-    return vars.map((variable, index) => {
+
+    let toggleManagePricesLabel: LabelDesc = {
+        type: "label",
+        name: "enable price management",
+        text: "enable price management",
+        textAlign: 'left',
+        width: labelWidth,
+        height: height,
+        x: 4,
+        y: y
+    }
+    let toggleManagePricesButton = createToggleManagePricesButton()
+    toggleManagePricesButton.x = 4
+    toggleManagePricesButton.y = y
+    let toggleManagePricesRow = [toggleManagePricesLabel, toggleManagePricesButton]
+
+    let vars = ['target', 'food', 'souvenir', 'photo']
+    let ranges = [[0, 1], [0, 100], [0, 100], [0, 100]]
+    let spinnerWidgetRows = vars.map((variable, index) => {
 
         let range = ranges[index]
         let label: LabelDesc = {
@@ -62,4 +78,36 @@ export function buildConfigWidgets() {
         y += height + uiShared.padding
         return [label, spinner]
     })
+
+    return [toggleManagePricesRow].concat(spinnerWidgetRows)
+}
+
+export function getInfoLabelText() {
+    let target = (config.getFloat('target') * 100).toFixed(0)
+    return `${target}% of guests should buy a food item\nafter ${config.getTries('food')} tries, a souvenir after ${config.getTries('souvenir')},\nand a photo after ${config.getTries('photo')}`
+}
+
+
+export function createToggleManagePricesButton(): WidgetDesc {
+
+    return {
+        x: 0,
+        y: 0,
+        height: 10,
+        width: 10,
+        isChecked: config.getBoolean('enable-price-management'),
+        name: "toggle-manage-prices-button",
+        onChange(isChecked: boolean): void {
+            config.setBoolean('enable-price-management', isChecked)
+        },
+        text: "",
+        type: "checkbox"
+
+
+    }
+}
+
+export function updateSwitchWindowButton(window: Window): void {
+    let button = window.findWidget("switch to tab button")
+    button.x = window.width - button.width - uiShared.padding - 10
 }

@@ -6,11 +6,12 @@ import {
     buildPriceWidgetRows,
     buildStatWidgets
 } from "./statWidgets";
-import {buildConfigWidgets} from "./configWidgets";
+import {buildConfigWidgets, getInfoLabelText} from "./configWidgets";
 import {buildItemWidgetRows, buildItemWidgets} from "./itemWidgets";
 import {
     uiShared
 } from "./uiShared";
+import {createSwitchWindowButton, updateSwitchWindowButton} from "./SwitchWindowWidget";
 
 export function buildWindow() {
     if (typeof ui !== "undefined") {
@@ -40,10 +41,22 @@ export function buildWindow() {
                 y += widgetHeight + uiShared.padding
             })
 
+            let infoWidget: LabelDesc = {
+                type: 'label',
+                name: 'explanation label',
+                x: uiShared.padding,
+                y: Math.max(...configWidgets.map(w => w[0].y + w[0].height)) + uiShared.padding,
+                width: Math.max(...configWidgets.map(w => w[0].width + w[1].width + uiShared.padding * 2)),
+                height: configWidgets[0][0].height * 3,
+                text: "",
+                textAlign: undefined,
+                tooltip: ""
+            }
+
             let tabs: WindowTabDesc[] = [
                 {
                     image: "simulate",
-                    widgets: configWidgets.reduce((widgets, next) => widgets.concat(next))
+                    widgets: configWidgets.reduce((widgets, next) => widgets.concat(next)).concat([infoWidget])
                 },
                 {
                     image: "search" as IconName,
@@ -60,7 +73,7 @@ export function buildWindow() {
             let xDelta = 0
             let yDelta = 0
             let widgets: WidgetDesc[] = []
-            if (uiShared.tabsAsColumns) {
+            if (config.getBoolean('tabs-as-columns')) {
                 tabs.forEach((tab: WindowTabDesc) => {
                     let widest = 0
                     tab.widgets?.forEach(widget => {
@@ -81,6 +94,11 @@ export function buildWindow() {
                 y = yDelta + uiShared.padding
             }
 
+            let button = createSwitchWindowButton()
+            button.x = width - button.width - uiShared.padding - 10
+            button.y = 3
+
+            widgets.push(button)
 
             ui.openWindow({
                 classification: "Shop Price Manager",
@@ -92,7 +110,10 @@ export function buildWindow() {
                 tabs: tabs,
                 widgets: widgets,
                 onUpdate: updateUI,
-                onTabChange: () => uiShared.updateOnNextTick()
+                onTabChange: () => {
+                    uiShared.updateOnNextTick()
+                    uiShared.currentShopItemPriceVersion = -1
+                }
             })
         }
         uiShared.currentShopItemPriceVersion = -1
@@ -102,7 +123,7 @@ export function buildWindow() {
 
 function updateUI() {
     let window = ui.getWindow("Shop Price Manager")
-    window.tabIndex
+
     if (window == null) return
 
     if (uiShared.ticksSinceLastUpdate++ < uiShared.ticksPerUpdate) return
@@ -112,8 +133,8 @@ function updateUI() {
     state.updateGuestHappiness()
 
     let y = uiShared.getTopY()
-
-    if (uiShared.tabsAsColumns || window.tabIndex == 0) {
+    let tabsAsColumns = config.getBoolean('tabs-as-columns')
+    if (tabsAsColumns || window.tabIndex == 0) {
         let vars = ['target', 'food', 'souvenir', 'photo']
         let gets = [config.getFloat, config.getTries, config.getTries, config.getTries]
         vars.forEach((variable, index) => {
@@ -123,10 +144,17 @@ function updateUI() {
             widget.text = String(gets[index](variable))
         })
 
-        if (!uiShared.tabsAsColumns) window.height = y
+        let widget = window.findWidget('enable price management')
+        y += widget.height + uiShared.padding
+
+        widget = window.findWidget<LabelWidget>('explanation label')
+        widget.text = getInfoLabelText()
+        y += widget.height + uiShared.padding
+
+        if (!tabsAsColumns) window.height = y + uiShared.padding
     }
 
-    if (uiShared.tabsAsColumns || window.tabIndex == 1) {
+    if (tabsAsColumns || window.tabIndex == 1) {
 
         let widget: ListViewWidget = window.findWidget('happiness')
         widget.items = buildHappinessWidgetRows()
@@ -140,10 +168,10 @@ function updateUI() {
         widget.items = buildBoughtWidgetRows82()
         y += widget.height + uiShared.padding
 
-        if (!uiShared.tabsAsColumns) window.height = y + uiShared.padding
+        if (!tabsAsColumns) window.height = y + uiShared.padding
     }
 
-    if ((uiShared.tabsAsColumns || window.tabIndex == 2) &&
+    if ((tabsAsColumns || window.tabIndex == 2) &&
         uiShared.currentShopItemPriceVersion != state.shopItemPriceVersion) {
         uiShared.currentShopItemPriceVersion = state.shopItemPriceVersion
         let widget: ListViewWidget = window.findWidget('itemWidget')
@@ -153,7 +181,7 @@ function updateUI() {
         widget.items = buildItemWidgetRows()
         // widget.columns.forEach((col, i)=>col.sortOrder = sortOrder[i])
 
-        if (!uiShared.tabsAsColumns) {
+        if (!tabsAsColumns) {
             widget.y = y
             widget.x = 4
 
@@ -161,4 +189,5 @@ function updateUI() {
             window.width = widget.x + uiShared.padding * 2 + widget.width
         }
     }
+    updateSwitchWindowButton(window)
 }

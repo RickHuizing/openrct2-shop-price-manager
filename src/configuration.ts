@@ -1,4 +1,3 @@
-import {updateShopPrices} from "./startup";
 import {DEBUG} from "./state";
 
 const rctStorage = context.getParkStorage()
@@ -19,6 +18,10 @@ interface ShopManagerConfig {
     setTries(key: string, value: number | string): void
 
     updateTries(key: string, delta: number): void
+
+    getBoolean(key: string): boolean
+
+    setBoolean(key: string, value: boolean): void
 }
 
 export function init_config() {
@@ -62,6 +65,9 @@ export const config: ShopManagerConfig = {
         defaultTries.forEach(int => {
             if (!rctStorage.has(int[0] as string)) this.setTries(int[0] as string, int[1])
         })
+
+        if(!rctStorage.has('enable-price-management')) this.setBoolean('enable-price-management', false)
+        if(!rctStorage.has('tabs-as-columns')) this.setBoolean('tabs-as-columns', false)
         if (DEBUG) {
             for (let allKey in rctStorage.getAll()) {
                 console.log(allKey, rctStorage.getAll()[allKey])
@@ -76,7 +82,6 @@ export const config: ShopManagerConfig = {
         if (isNaN(value)) return
         let converted = (value < 0 ? 0 : value > 1 ? 1 : value).toFixed(4)
         rctStorage.set(key, converted)
-        updateShopPrices()
     },
     updateFloat(key: string, delta: number): void {
         this.setFloat(key, this.getFloat(key) + delta)
@@ -98,6 +103,18 @@ export const config: ShopManagerConfig = {
     updateTries(key: string, delta: number): void {
         this.setTries(key, this.getTries(key) + delta)
     },
+    getBoolean(key: string): boolean {
+        let result = rctStorage.get<boolean>(key)
+        if (result == undefined) {
+            this.setBoolean(key, false)
+            return false
+        }
+        return result
 
+
+    },
+    setBoolean(key: string, value: boolean) {
+        rctStorage.set(key, value)
+    }
 }
 

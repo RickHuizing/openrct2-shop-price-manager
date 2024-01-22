@@ -1,5 +1,3 @@
-import {getGuestHappiness} from "./util";
-
 export const DEBUG = false
 
 interface State {
@@ -25,4 +23,22 @@ export let state: State = {
     updateGuestHappiness() {
         this.guestHappiness = getGuestHappiness()
     }
+}
+
+export function getGuestHappiness() {
+    let guests = state.guests
+    let guestHappiness = [0, 0, 0]
+    guests.forEach(guest => {
+        if (guest.happiness >= 180) {
+            guestHappiness[2] += 1
+        } else if (guest.happiness >= 128) {
+            guestHappiness[1] += 1
+        } else {
+            guestHappiness[0] += 1
+        }
+    })
+    for (let i = 0; i < 3; i++) {
+        guestHappiness[i] = guestHappiness[i] / guests.length
+    }
+    return guestHappiness
 }
