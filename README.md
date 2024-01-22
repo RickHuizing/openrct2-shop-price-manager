@@ -17,7 +17,7 @@ Plugin folder found at `~/Documents/OpenRCT2/plugin.`
 
 ---
 
-
+![image](https://github.com/RickHuizing/openrct2-shop-price-manager/assets/15342604/6e4bb891-7496-496c-9279-5ef080c1d35f)
 
 ---
 
